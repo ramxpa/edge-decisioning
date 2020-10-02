@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Offer decisioning demo: personalized offers</title>
+    <script>
+        !function(n,o){o.forEach(function(o){n[o]||((n.__alloyNS=n.__alloyNS||
+            []).push(o),n[o]=function(){var u=arguments;return new Promise(
+            function(i,l){n[o].q.push([i,l,u])})},n[o].q=[])})}
+        (window,["alloy"]);
+    </script>
+    <script src="https://cdn1.adoberesources.net/alloy/2.1.0/alloy.min.js" async></script>
+    <script>alloy("configure", {
+        "edgeConfigId": "d5bfde46-4a3b-41ba-8b00-9642aed83916:prod",
+        "orgId":"016A5A7E5BD0D2460A495ED8@AdobeOrg"
+    });
+    alloy("sendEvent", {
+        "xdm": {
+            "identityMap": {
+                "ECID": [
+                    {
+                        "authenticatedState":"ambiguous",
+                        // Phil Cal - Checking account < 10000
+                        "id":"80000961445168530427168311895698099000",
+                        "primary":true
+                    }
+                    ]
+            }
+        },
+        "decisionScopes": [
+            "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTIyMjA4YjNhODc0MDU1OCIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjEyMjIwNDUyOTUxNGEyYzAifQ==",
+            "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTIyYzkxMzg1Mjc2MDE4YyIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjEyMzMxZjU2MTYyYWEyZjcifQ=="
+        ]
+    }).then(({decisions}) => {
+        decisions.forEach(function(payload) {
+            payload.items.forEach(function(item) {
+                if (item.schema == "https://ns.adobe.com/experience/offer-management/content-component-text") {
+                    document.getElementById("offer-content").innerHTML += "<p>" + item.data.content + "</p>";
+                    console.log("text offer content: " + item.data.content);
+                } else if (item.schema == "https://ns.adobe.com/experience/offer-management/content-component-html") {
+                    document.getElementById("offer-content").innerHTML += item.data.content;
+                    console.log("html offer content: " + item.data.content);
+                } else if (item.schema == "https://ns.adobe.com/experience/offer-management/content-component-imagelink") {
+                    document.getElementById("offer-content").innerHTML += "<img src='" + item.data.deliveryURL + "'></img>";
+                    console.log("image offer deliveryURL: " + item.data.deliveryURL);
+                }
+            });
+        });
+    });
+    </script>
+    <style>
+    img {width: 60%}
+    </style>
+</head>
+<body>
+    <h1>Welcome to AdobeTrust Phil!</h1>
+    <div id="offer-content"></div>
+</body>
+</html>
