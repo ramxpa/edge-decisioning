@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Offer decisioning demo: personalized offers</title>
+    <script>
+        !function(n,o){o.forEach(function(o){n[o]||((n.__alloyNS=n.__alloyNS||
+            []).push(o),n[o]=function(){var u=arguments;return new Promise(
+            function(i,l){n[o].q.push([i,l,u])})},n[o].q=[])})}
+        (window,["alloy"]);
+    </script>
+    <script src="https://cdn1.adoberesources.net/alloy/2.1.0/alloy.min.js" async></script>
+
+</head>
+
+<body>
+
+    <script>alloy("configure", {
+        "edgeConfigId": "bd814f80-3e5c-49a4-b809-e366a35877bf:prod",
+        "orgId":"AA7A3BC75245B3BC0A490D4D@AdobeOrg"
+    });
+    alloy("sendEvent", {
+        "xdm": {
+            "identityMap": {
+                "ECID": [
+                    {
+                        "authenticatedState":"ambiguous",
+                        
+                        // Dan Cal - Mortgage User - Should get mortgage refinance offer
+                        //"id":"20000961445168530427168311895698077000",
+
+                        // Lily Mass - Savings Account - Should get savings offer
+                        //"id":"70881961655168530427158411895698055399",
+
+                        // Phil Cal - Checking account < Should get fallback offer
+                        "id":"80000961445168530427168311895698099000",
+                        
+                        "primary":true
+                    }
+                    ]
+            }
+        },
+        "decisionScopes": [
+            "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTIyYWI0MDgyY2FiZjIzNSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjEyMzFhMWQwOGY3OWNmMDUifQ==", // A1
+     
+        ]
+    }).then(({decisions}) => {
+        console.log("Decisions ----- ", decisions);
+        decisions.forEach(function(payload) {
+            payload.items.forEach(function(item) {
+                if (item.schema == "https://ns.adobe.com/experience/offer-management/content-component-text") {
+                    document.getElementById("offer-content").innerHTML += "<p>" + item.data.content + "</p>";
+                    console.log("text offer content: " + item.data.content);
+                } else if (item.schema == "https://ns.adobe.com/experience/offer-management/content-component-html") {
+                    document.getElementById("offer-content").innerHTML += item.data.content;
+                    console.log("html offer content: " + item.data.content);
+                } else if (item.schema == "https://ns.adobe.com/experience/offer-management/content-component-imagelink") {
+                    document.getElementById("offer-content").innerHTML += "<img src='" + item.data.deliveryURL + "'></img>";
+                    console.log("image offer deliveryURL: " + item.data.deliveryURL);
+                }
+            });
+        });
+    });
+    </script>
+
+
+
+
+    <h1>Welcome to Adobe!</h1>
+    <div id="offer-content"></div>
+</body>
+
+<!-- xcore:offer-activity:122ab4082cabf235
+xcore:offer-placement:1231a1d08f79cf05
+eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTIyYWI0MDgyY2FiZjIzNSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjEyMzFhMWQwOGY3OWNmMDUifQ==
+ -->
+
+</html>
